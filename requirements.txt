@@ -1,0 +1,5 @@
+edge-impulse-linux==1.0.6
+numpy==1.22.1
+opencv-python==4.5.1.48
+psutil==5.8.0
+PyAudio==0.2.11
