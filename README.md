@@ -2,8 +2,8 @@ Python 3 sollte installiert sein.
 
 ```bash
 # Repository klonen
-git clone https://github.com/hof-university-jelly/jelly-obj-detection
-cd jelly-obj-detection
+git clone https://github.com/hof-university-jelly/jelly-magician
+cd jelly-magician
 
 # Dependencies am besten über ein virtual environment verwalten
 python3 -m venv venv
