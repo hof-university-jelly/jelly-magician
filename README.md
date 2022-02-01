@@ -20,7 +20,7 @@ which pip3
 # Das installiert eure dependencies im venv
 pip3 install -r requirements.txt
 
-# Programm starten
-python3 main.py
+# Programm starten (aus dem root directory)
+python3 -m jelly_magician
 
 ```
