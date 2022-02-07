@@ -8,20 +8,16 @@ import math
 
 class Classifier:
 
-    """
-    Construct
-    """
-
     def __init__(self, modelfile):
+        """Constructor"""
+
         self.modelfile = modelfile
         self.logger = logging.getLogger('edge_impulse.classifier')
         self.logger.debug(f"Using modelfile: {self.modelfile}")
 
-    """
-    Classify the passed image according to the eim model of the object
-    """
-
     def classify(self, img):
+        """Classify the passed image according to the eim model of the object"""
+
         self.current_image = img
 
         if self.current_image is None:
@@ -51,11 +47,9 @@ class Classifier:
                 if (runner):
                     runner.stop()
 
-    """
-    Show classification results in opencv
-    """
-
     def show_result_img(self, wait_key=1):
+        """Show classification results in opencv"""
+
         try:
             res = self.result
             img = self.img_cropped
@@ -83,25 +77,9 @@ class Classifier:
             cv2.imshow('classification result', img)
             cv2.waitKey(wait_key)
 
-    """
-    returns the found bounding boxes as seperately cropped opencv images
-    """
-
-    def get_img_results_cropped(self):
-        bb_list = self.result["result"]["bounding_boxes"]
-
-        cropped_bbs = []
-        if self._result_has_bounding_boxes():
-            for bb in bb_list:
-                cropped_bbs.append(self._crop_img_by_bounding_box(bb))
-
-        return cropped_bbs
-
-    """
-    return the best result of the found bounding boxes as seperately cropped opencv image
-    """
-
     def get_img_of_best_result_cropped(self):
+        """returns an image of the best scored found bounding box"""
+
         if self._result_has_bounding_boxes():
             bb_list = self.result["result"]["bounding_boxes"]
             best_score = 0
@@ -117,11 +95,9 @@ class Classifier:
 
         return None
 
-    """
-    Filter result so each label is unique, selected by best precision
-    """
-
     def get_result_filtered_by_precision(self):
+        """Returns the result of the classification filtered by precision uniquely"""
+
         if not self._result_has_bounding_boxes():
             return []
 
@@ -154,6 +130,8 @@ class Classifier:
         return filtered_bb_list
 
     def get_coordinates_by_bb(self, bb):
+        """Returns center coordinates of a given bounding_box"""
+
         x, y, w, h = [
             bb['x'],
             bb['y'],
@@ -164,6 +142,15 @@ class Classifier:
         return (x + w / 2, y + h / 2)
 
     def get_label_coord_dict(self):
+        """Returns the filtered result in a dictionary format
+        key: label
+        value: centered coordinates
+
+        example return: [
+            'lego_alga': (22.4, 11),
+            'lego_seat': (42.4, 15.22),
+        ]
+        """
         bb_list = self.get_result_filtered_by_precision()
         dict = {}
         for bb in bb_list:
@@ -172,6 +159,8 @@ class Classifier:
         return dict
 
     def _crop_img_by_bounding_box(self, bounding_box):
+        """Return a cropped image of a bounding box"""
+
         img = self.current_image
         coords = [
             bounding_box['x'],
@@ -187,10 +176,8 @@ class Classifier:
         # return cropped
         return img[y: y + h, x: x + w]
 
-    """
-    """
-
     def _result_has_bounding_boxes(self):
+        """checks if a result with bounding_boxes is given"""
         if not hasattr(self, "result"):
             return False
 
