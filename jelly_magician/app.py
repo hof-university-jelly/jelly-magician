@@ -122,16 +122,4 @@ def run():
     logging.basicConfig(format=format, level=level)
 
     instructions_evaluated = evaluate_instructions()
-
-    """
-CRITICAL = 50
-FATAL = CRITICAL
-ERROR = 40
-WARNING = 30
-WARN = WARNING
-INFO = 20
-DEBUG = 10
-NOTSET = 0
-    """
-
     fetch_pieces(instructions_evaluated)

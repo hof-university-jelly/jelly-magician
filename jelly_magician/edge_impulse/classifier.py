@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 from edge_impulse_linux.image import ImageImpulseRunner
 import cv2
 import logging
@@ -138,21 +136,9 @@ class Classifier:
             bb['height'],
         ]
 
-        rot = 0
-        if (w > h):
-            rot = 90
+        rot = 0 if w > h else 90
+
         return (x + w / 2, y + h / 2, rot)
-
-    def get_coordinates_relative_to_center_by_bb(self, coordinates_in_img):
-        x, y, _r = coordinates_in_img
-        img = self.img_cropped
-        img_center_x = int(img.shape[0] / 2)
-        img_center_y = int(img.shape[1] / 2)
-
-        x_rel = x - img_center_x
-        y_rel = y - img_center_y
-
-        return (x_rel, y_rel, _r)
 
     def get_label_coord_dict(self):
         """Returns the filtered result in a dictionary format

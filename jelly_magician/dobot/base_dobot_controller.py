@@ -11,7 +11,6 @@ class BaseDobotController:
     def __init__(self, logger: Logger, port=2):
         self.logger = logger
         self.bot = self.init_bot(port)
-        self.is_active = False
 
     def init_bot(self, port):
         ports = list_ports.comports()
@@ -54,12 +53,7 @@ class BaseDobotController:
             self.logger.critical("Arm could not reach position!")
 
     def move(self, x, y, z, r, homing=False):
-        self.is_active = True
         thread = Thread(target=self.await_pos, args=(
             self.bot, x, y, z, r, homing))
         thread.start()
         thread.join()
-        self.is_active = False
-
-    def is_active(self):
-        return self.is_active
