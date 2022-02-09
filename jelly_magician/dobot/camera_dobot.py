@@ -7,9 +7,8 @@ import cv2
 
 
 class CameraDobot(BaseDobotController):
-    CAMERA_POSITION = (290, 0, 30)
-    MID_POSITION = (150, -150, 90)
-    STANDBY_POSITION = (0, -230, 20)
+    CAMERA_POSITION = (290, 0, 50)
+    STANDBY_POSITION = (150, -150, 90)
 
     def __init__(self, device_port, classifier: Classifier):
         logger = logging.getLogger("dobot.camera_dobot")
@@ -22,13 +21,11 @@ class CameraDobot(BaseDobotController):
 
     def move_to_camera_position(self):
         self.is_active = True
-        self.move(*self.MID_POSITION, 0)
         self.move(*self.CAMERA_POSITION, 0)
         self.is_active = False
 
     def move_to_standby_position(self):
         self.is_active = True
-        self.move(*self.MID_POSITION, 0)
         self.move(*self.STANDBY_POSITION, 0)
         self.is_active = False
 
@@ -80,3 +77,22 @@ class CameraDobot(BaseDobotController):
 
         cap.release()
         cv2.destroyAllWindows()
+
+    def show_cam_video(self, dobot=None):
+        cap = cv2.VideoCapture(0)
+
+        if not (cap.isOpened()):
+            logging.error('no camera found')
+
+        while(cap.isOpened()):
+            ret, frame = cap.read()
+            if ret is True:
+                self.classify_video_frame(frame)
+                if dobot is not None:
+                    logging.debug(dobot.bot.pose())
+
+    def classify_video_frame(self, frame):
+        real_pieces_model_path = "./jelly_magician/resources/eim/x86macos/test_compressed-mac-x86_64-v1.eim"
+        c = Classifier(real_pieces_model_path)
+        c.classify(frame)
+        c.show_result_img()

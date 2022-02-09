@@ -13,7 +13,7 @@ class Classifier:
 
         self.modelfile = modelfile
         self.logger = logging.getLogger('edge_impulse.classifier')
-        self.logger.setLevel(logging.CRITICAL)
+        self.logger.setLevel(logging.WARNING)
         self.logger.debug(f"Using modelfile: {self.modelfile}")
 
     def classify(self, img):
@@ -167,10 +167,7 @@ class Classifier:
         bb_list = self.get_result_filtered_by_precision()
         dict = {}
         for bb in bb_list:
-            coordinates_in_img = self.get_coordinates_by_bb(bb)
-            coordinates_relative_to_center = self.get_coordinates_relative_to_center_by_bb(
-                coordinates_in_img)
-            dict[bb["label"]] = coordinates_relative_to_center
+            dict[bb["label"]] = self.get_coordinates_by_bb(bb)
 
         return dict
 
