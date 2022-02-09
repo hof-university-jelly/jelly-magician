@@ -13,6 +13,7 @@ class Classifier:
 
         self.modelfile = modelfile
         self.logger = logging.getLogger('edge_impulse.classifier')
+        self.logger.setLevel(logging.CRITICAL)
         self.logger.debug(f"Using modelfile: {self.modelfile}")
 
     def classify(self, img):
@@ -54,7 +55,7 @@ class Classifier:
             res = self.result
             img = self.img_cropped
         except:
-            self.logger.warn('classification has no result or cropped img')
+            self.logger.debug('classification has no result or cropped img')
             return
 
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -125,8 +126,6 @@ class Classifier:
             # append the best scored result to our filtered list
             filtered_bb_list.append(best_box)
 
-        self.logger.debug(f"Best results: {repr(filtered_bb_list)}")
-
         return filtered_bb_list
 
     def get_coordinates_by_bb(self, bb):
@@ -139,7 +138,21 @@ class Classifier:
             bb['height'],
         ]
 
-        return (x + w / 2, y + h / 2)
+        rot = 0
+        if (w > h):
+            rot = 90
+        return (x + w / 2, y + h / 2, rot)
+
+    def get_coordinates_relative_to_center_by_bb(self, coordinates_in_img):
+        x, y, _r = coordinates_in_img
+        img = self.img_cropped
+        img_center_x = int(img.shape[0] / 2)
+        img_center_y = int(img.shape[1] / 2)
+
+        x_rel = x - img_center_x
+        y_rel = y - img_center_y
+
+        return (x_rel, y_rel, _r)
 
     def get_label_coord_dict(self):
         """Returns the filtered result in a dictionary format
@@ -147,14 +160,17 @@ class Classifier:
         value: centered coordinates
 
         example return: [
-            'lego_alga': (22.4, 11),
+            'lego_alga': (22.4, 11, 0/90),
             'lego_seat': (42.4, 15.22),
         ]
         """
         bb_list = self.get_result_filtered_by_precision()
         dict = {}
         for bb in bb_list:
-            dict[bb["label"]] = self.get_coordinates_by_bb(bb)
+            coordinates_in_img = self.get_coordinates_by_bb(bb)
+            coordinates_relative_to_center = self.get_coordinates_relative_to_center_by_bb(
+                coordinates_in_img)
+            dict[bb["label"]] = coordinates_relative_to_center
 
         return dict
 

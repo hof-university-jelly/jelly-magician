@@ -154,3 +154,4 @@ cython_debug/
 # Custom
 test_imgs/
 less_test_images/
+jelly_magician/resources/tobis/
