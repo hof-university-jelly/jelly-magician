@@ -10,11 +10,11 @@ DEFAULT_GRABBER_BOUNDARIES = (
 )
 
 
-def translate_img_to_grabber_coords(img_coords, img, grabber_boundaries=DEFAULT_GRABBER_BOUNDARIES):
+def translate_img_to_grabber_coords(img_coords, img):
     logger = logging.getLogger(
         "utlis.coordinates.translate_img_to_grabber_coords")
     logger.setLevel(logging.WARNING)
-    tl, tr, bl, br = grabber_boundaries
+    tl, tr, bl, br = DEFAULT_GRABBER_BOUNDARIES
 
     # field dimensions in grabber format
     field_length = math.sqrt(((tl[0]-bl[0])**2)+((tl[1]-bl[1])**2))
@@ -42,5 +42,4 @@ def translate_img_to_grabber_coords(img_coords, img, grabber_boundaries=DEFAULT_
     translated_target_y += br[1]
     logger.debug(repr((translated_target_x, translated_target_y)))
 
-    # TODO: remove z
     return (translated_target_x, translated_target_y, 90, target_rotation)

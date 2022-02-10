@@ -3,7 +3,6 @@ from threading import Thread
 from serial.tools import list_ports
 
 from jelly_magician.dobot.jelly_dobot import JellyDobot
-from jelly_magician.edge_impulse.classifier import Classifier
 
 
 class BaseDobotController:

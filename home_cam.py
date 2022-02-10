@@ -1,7 +1,5 @@
 from jelly_magician.dobot.camera_dobot import CameraDobot
 from jelly_magician.dobot.grabber_dobot import GrabberDobot
-from jelly_magician.dobot.jelly_dobot import JellyDobot
-from jelly_magician.dobot.base_dobot_controller import BaseDobotController
 from jelly_magician.dobot.camera_dobot import CameraDobot
 from jelly_magician.edge_impulse.classifier import Classifier
 

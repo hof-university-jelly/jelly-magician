@@ -11,32 +11,33 @@ import logging
 DEVICE_PORT_CAMERA_BOT = 2
 DEVICE_PORT_GRABBING_BOT = 4
 
+INSTRUCTION_PAGES_PATH = "./jelly_magician/resources/instructions/2/*.png"
+MODELFILE_INSTRUCTION_BLUE_BOX_PATH = "./jelly_magician/resources/eim/x86macos/bluebox_detection-mac-x86_64-v12.eim"
+MODELFILE_INSTRUCTION_PIECES_PATH = "./jelly_magician/resources/eim/x86macos/lego_city_instruction-mac-x86_64-v9.eim"
+MODELFILE_REAL_PIECES_PATH = "./jelly_magician/resources/eim/x86macos/test_compressed-mac-x86_64-v1.eim"
+
 
 def evaluate_instructions():
     """
     Evaluates the instructions provided by the resources folder
     """
 
-    instruction_blue_box_model_path = "./jelly_magician/resources/eim/x86macos/bluebox_detection-mac-x86_64-v12.eim"
-    instruction_pieces_model_path = "./jelly_magician/resources/eim/x86macos/lego_city_instruction-mac-x86_64-v9.eim"
-    instruction_pages_path = "./jelly_magician/resources/instructions/2/*.png"
     logger = logging.getLogger("root.evaluate_instructions")
-
     logger.info("Evaluating instructions...")
 
     # instructions bluebox classification
     required_pieces = []
+    bluebox_classifier = Classifier(MODELFILE_INSTRUCTION_BLUE_BOX_PATH)
     instruction_pages = [cv2.imread(file)
-                         for file in sorted(glob.glob(instruction_pages_path))]
+                         for file in sorted(glob.glob(INSTRUCTION_PAGES_PATH))]
 
-    bluebox_classifier = Classifier(instruction_blue_box_model_path)
     for page in instruction_pages:
         bluebox_classifier.classify(page)
         bluebox_classifier.show_result_img(1)
         blue_box = bluebox_classifier.get_img_of_best_result_cropped()
 
         # instructions pieces classification
-        pieces_classifier = Classifier(instruction_pieces_model_path)
+        pieces_classifier = Classifier(MODELFILE_INSTRUCTION_PIECES_PATH)
         pieces_classifier.classify(blue_box)
         pieces_classifier.show_result_img(1)
         result = pieces_classifier.get_label_coord_dict()
@@ -61,8 +62,7 @@ def fetch_pieces(instructions):
     """
 
     logger = logging.getLogger("root.fetch_pieces")
-    modelfile = "./jelly_magician/resources/eim/x86macos/test_compressed-mac-x86_64-v1.eim"
-    classifier = Classifier(modelfile)
+    classifier = Classifier(MODELFILE_REAL_PIECES_PATH)
     cambot = CameraDobot(DEVICE_PORT_CAMERA_BOT, classifier)
     grabber = GrabberDobot(DEVICE_PORT_GRABBING_BOT)
 
@@ -76,7 +76,7 @@ def fetch_pieces(instructions):
         logger.info(f"Searching pieces for current page: {repr(page)}")
         for label in page:
             cambot.move_to_camera_position()
-            cambot.classify()
+            cambot.classify_from_position()
             cambot.classifier.show_result_img()
             result = cambot.classifier.get_label_coord_dict()
             cropped_img = cambot.classifier.img_cropped
@@ -101,8 +101,7 @@ def show_field_and_classify_only():
     Only moves camera in position and classifies the captured image. Used for debugging purposes.
     """
 
-    modelfile = "./jelly_magician/resources/eim/x86macos/test_compressed-mac-x86_64-v1.eim"
-    classifier = Classifier(modelfile)
+    classifier = Classifier(MODELFILE_REAL_PIECES_PATH)
     cambot = CameraDobot(DEVICE_PORT_CAMERA_BOT, classifier)
     grabber = GrabberDobot(DEVICE_PORT_GRABBING_BOT)
 

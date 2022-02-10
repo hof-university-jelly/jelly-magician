@@ -15,22 +15,13 @@ class CameraDobot(BaseDobotController):
         super().__init__(logger, device_port)
         self.classifier = classifier
 
-    """
-    +---------- DOBOT CODE ------------------------+
-    """
-
     def move_to_camera_position(self):
         self.move(*self.CAMERA_POSITION, 0)
 
     def move_to_standby_position(self):
         self.move(*self.STANDBY_POSITION, 0)
 
-
-    """
-    +---------- CLASSIFIER CODE -------------------+
-    """
-
-    def classify(self, show_image=False):
+    def classify_from_position(self, show_image=False):
         c = self.classifier
         cap = cv2.VideoCapture(0)
         ret, frame = cap.read()
