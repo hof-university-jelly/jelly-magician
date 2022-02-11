@@ -136,7 +136,7 @@ class Classifier:
             bb['height'],
         ]
 
-        rot = 0 if w > h else 90
+        rot = 90 if w > h else 0
 
         return (x + w / 2, y + h / 2, rot)
 

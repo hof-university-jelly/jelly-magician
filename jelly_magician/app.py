@@ -11,6 +11,8 @@ import logging
 DEVICE_PORT_CAMERA_BOT = 2
 DEVICE_PORT_GRABBING_BOT = 4
 
+OUT_PATH = "./jelly_magician/resources/out/"
+
 INSTRUCTION_PAGES_PATH = "./jelly_magician/resources/instructions/2/*.png"
 MODELFILE_INSTRUCTION_BLUE_BOX_PATH = "./jelly_magician/resources/eim/x86macos/bluebox_detection-mac-x86_64-v12.eim"
 MODELFILE_INSTRUCTION_PIECES_PATH = "./jelly_magician/resources/eim/x86macos/lego_city_instruction-mac-x86_64-v9.eim"
@@ -22,7 +24,7 @@ def evaluate_instructions():
     Evaluates the instructions provided by the resources folder
     """
 
-    logger = logging.getLogger("root.evaluate_instructions")
+    logger = logging.getLogger("app.evaluate_instructions")
     logger.info("Evaluating instructions...")
 
     # instructions bluebox classification
@@ -36,13 +38,15 @@ def evaluate_instructions():
         bluebox_classifier.show_result_img(1)
         blue_box = bluebox_classifier.get_img_of_best_result_cropped()
 
+        # cv2.imswrite(f"{OUT_PATH}{}")
+
         # instructions pieces classification
         pieces_classifier = Classifier(MODELFILE_INSTRUCTION_PIECES_PATH)
         pieces_classifier.classify(blue_box)
         pieces_classifier.show_result_img(1)
         result = pieces_classifier.get_label_coord_dict()
 
-        required_pieces.append(list(result.keys()))
+        required_pieces.append((page, list(result.keys())))
 
     logger.info("Evaluating instructions done.")
 
@@ -61,7 +65,7 @@ def fetch_pieces(instructions):
     intructs the dobots to fetch the pieces required by the instructions
     """
 
-    logger = logging.getLogger("root.fetch_pieces")
+    logger = logging.getLogger("app.fetch_pieces")
     classifier = Classifier(MODELFILE_REAL_PIECES_PATH)
     cambot = CameraDobot(DEVICE_PORT_CAMERA_BOT, classifier)
     grabber = GrabberDobot(DEVICE_PORT_GRABBING_BOT)
@@ -71,10 +75,11 @@ def fetch_pieces(instructions):
 
     logger.info("Fetching pieces...")
 
-    for page in instructions:
+    for page, pieces in instructions:
+        cv2.imshow("instruction_page", page)
         logger.info("")
-        logger.info(f"Searching pieces for current page: {repr(page)}")
-        for label in page:
+        logger.info(f"Searching pieces for current page: {repr(pieces)}")
+        for label in pieces:
             cambot.move_to_camera_position()
             cambot.classify_from_position()
             cambot.classifier.show_result_img()
@@ -93,6 +98,8 @@ def fetch_pieces(instructions):
                 logger.warning(f"\tPiece {label} not found in target field")
 
         logger.info("Page complete")
+        logger.info("Press Enter to continue with next page...")
+        input("")
     logger.info("Fetching pieces done.")
 
 
@@ -108,6 +115,7 @@ def show_field_and_classify_only():
     grabber.move_to_standby_position()
     cambot.move_to_camera_position()
     cambot.show_cam_video()
+    exit(0)
 
 
 def run():
@@ -120,5 +128,9 @@ def run():
     format = '[%(levelname)s]\t[%(name)s]\t%(message)s'
     logging.basicConfig(format=format, level=level)
 
+    # show_field_and_classify_only()
+
     instructions_evaluated = evaluate_instructions()
+    logging.info("Press Enter to fetch pieces...")
+    input("")
     fetch_pieces(instructions_evaluated)
